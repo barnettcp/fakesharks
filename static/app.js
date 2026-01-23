@@ -13,21 +13,19 @@ fetch("/api/reports")
     });
   });
 
-  
-document.getElementById("report-form").onsubmit = e => {
+document.getElementById("report-form").addEventListener("submit", (e) => {
   e.preventDefault();
-
+  const lat = document.getElementById("lat").value;
+  const lon = document.getElementById("lon").value;
+  const shark_type = document.querySelector('input[placeholder="Shark Type"]').value;
+  
+  // Send POST request to backend
   fetch("/api/reports", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      lat: 42,
-      lon: -71,
-      severity: 5,
-      shark_type: "Land Shark",
-      activity: "Deploying Flask app",
-      description: "Unexpected snacking incident"
-    })
-  }).then(() => location.reload());
-};
+    body: JSON.stringify({ lat, lon, shark_type })
+  }).then(() => {
+    // Refresh the map with new data
+  });
+});
 
