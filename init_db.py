@@ -56,20 +56,7 @@ def init_db(db_name: str = None):
     print("Definition tables created successfully...")
 
 
-    ### Populate the tables
-    
-    shark_types = ["Great White", "Tiger Shark", "Mako"]
-    body_parts = ['Head', 'Arm', 'Legs', "Torso", "Multiple"]
-
-    # Populate the shark types table
-    for shark in shark_types:
-        conn.execute(f"INSERT INTO t_shark_types (shark_type) values('{shark}')")
-    print("Pesky sharks added to the database...")
-
-    # Populate the body parts table
-    for part in body_parts:
-        conn.execute(f"INSERT INTO t_body_parts (body_part) values('{part}')")
-    print("Delicious body parts added to the menu...")
+    refresh_lookup_tables(db_name)
 
     conn.commit()
     conn.close()
@@ -96,14 +83,17 @@ def refresh_lookup_tables(db_name: str = None):
     conn.execute("DELETE FROM t_body_parts")
 
     # Re-populate the tables
+    # NOTE: For now, this is the master list of shark types and body parts
     shark_types = ["Great White", "Tiger Shark", "Mako"]
     body_parts = ['Head', 'Arm', 'Legs', "Torso", "Multiple"]
 
     for shark in shark_types:
         conn.execute(f"INSERT INTO t_shark_types (shark_type) values('{shark}')")
+    print("Those pesky sharks are added to the database...")
 
     for part in body_parts:
         conn.execute(f"INSERT INTO t_body_parts (body_part) values('{part}')")
+    print("Delicious body parts added to the menu/database...")
 
     conn.commit()
     conn.close()

@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify, render_template
 import sqlite3
 from datetime import datetime
+from init_db import init_db
 
 app = Flask(__name__)
+
+# Initialize the database if it doesn't exist
+init_db()
 
 @app.route("/")
 def index():
@@ -57,3 +61,10 @@ def add_report():
     conn.close()
     return jsonify({"status": "success"})
 
+# Fetch shark types from the database
+@app.route("/api/shark-types")
+def get_shark_types():
+    conn = get_db()
+    types = conn.execute("SELECT shark_type FROM t_shark_types ORDER BY shark_type").fetchall()
+    conn.close()
+    return jsonify([t[0] for t in types])
