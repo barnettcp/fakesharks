@@ -62,7 +62,19 @@ function refreshMap() {
         mode: "markers",
         marker: { size: 10 }
       }], {
-        geo: { scope: "world" }
+        responsive: true,
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        geo: { 
+          scope: "world",
+          projection: { type: "equirectangular" },
+          showland: true,
+          landcolor: "#2d5016",
+          showocean: true,
+          oceancolor: "#1a3a52",
+          showcountries: true,
+          countrycolor: "#1e350f",
+          countrywidth: 0.75
+         }
       });
     })
     .catch(err => console.error("Error loading reports:", err));
