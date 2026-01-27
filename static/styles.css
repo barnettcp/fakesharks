@@ -1,0 +1,31 @@
+/* reset default browser styleing */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Style the entire page */
+html, body {
+    background-color: #1a1f2e; /** dark gray-blue **/
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    height: 100%;
+}
+
+/* Map container - full width and prominent height */
+#map {
+    width: 100%;
+    height: 600px;      /* adjust this as needed */
+    margin: 20px 0;     /* 20px top/bottom, 0 left/right (since body has padding ) */
+
+    border-radius: 12px; /* optional: slightly rounded corners for polish */
+    
+    overflow: hidden;    /* This clips content to respect the rounded corners */
+}
+
+
+/* Add padding for left/right spacing */
+body {
+    padding: 0 40px;    /* 40px padding on left and right sides */
+}

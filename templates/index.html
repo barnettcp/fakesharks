@@ -15,9 +15,33 @@
 
   <h2>Report an Attack</h2>
   <form id="report-form">
-    <input placeholder="Latitude" id="lat">
-    <input placeholder="Longitude" id="lon">
-    <input placeholder="Shark Type">
+    <!-- Location inputs -->
+    <input type="number" placeholder="Latitude" id="lat" step="0.0001" required>
+    <input type="number" placeholder="Longitude" id="lon" step="0.0001" required>
+    
+    <!-- Shark type dropdown - populated by JavaScript from API -->
+    <select id="shark-type" required>
+      <option value="">Select Shark Type</option>
+    </select>
+    
+    <!-- Body part affected - populated by JavaScript from API -->
+    <select id="body-part" required>
+      <option value="">Select Body Part</option>
+    </select>
+    
+    <!-- Severity level (1-5) -->
+    <select id="severity" required>
+      <option value="">Select Severity</option>
+      <option value="1">1 - Minor</option>
+      <option value="2">2 - Moderate</option>
+      <option value="3">3 - Serious</option>
+      <option value="4">4 - Severe</option>
+      <option value="5">5 - Critical</option>
+    </select>
+    
+    <!-- Brief description (max 160 characters) -->
+    <textarea id="description" placeholder="Brief description (max 160 characters)" maxlength="160" required></textarea>
+    
     <button type="submit">Submit Fake Attack</button>
   </form>
 

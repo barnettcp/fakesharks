@@ -26,10 +26,12 @@ def init_db(db_name: str = None):
             lon REAL NOT NULL,
             shark_type TEXT NOT NULL,
             body_part TEXT NOT NULL,
-            description TEXT NOT NULL
+            severity INTEGER NOT NULL CHECK (severity >= 1 AND severity <= 5),
+            description TEXT NOT NULL CHECK (LENGTH(description) <= 160),
+            long_description TEXT NULL,
+            survived BOOLEAN NOT NULL
         )
-        """
-    )
+        """)
 
     print("Storage database created successfully...")
 
@@ -55,7 +57,7 @@ def init_db(db_name: str = None):
     
     print("Definition tables created successfully...")
 
-
+    # Populate the lookup tables with data
     refresh_lookup_tables(db_name)
 
     conn.commit()
