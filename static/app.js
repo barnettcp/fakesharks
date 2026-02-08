@@ -45,6 +45,14 @@ function populateDropdowns() {
 populateDropdowns();
 
 
+// Function to pre-fill the report form with latitude and longitude when user clicks "Report Attack Here" on the map
+function reportAttackAt(lat, lon) {
+  document.getElementById("lat").value = lat;
+  document.getElementById("lon").value = lon;
+  document.getElementById("lat").scrollIntoView({ behavior: "smooth" });
+}
+
+
 /**
  * Rewritten to use Leaflet for map rendering and marker management.
  * Fetches all reports from the API and displays them as markers on the map.
@@ -54,8 +62,15 @@ function refreshMap() {
   fetch("/api/reports")
     .then(res => res.json())
     .then(data => {
+      // Remove existing map if it exists
+      const mapContainer = document.getElementById("map");
+      if (window.leafletMap) {
+        window.leafletMap.remove();
+      }
+      
       // Initialize the map (center on world view, zoom level 2)
       const map = L.map("map").setView([20, 0], 2);
+      window.leafletMap = map;  // Store globally so we can remove it next time
       
       // Add OpenStreetMap tiles
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -69,8 +84,26 @@ function refreshMap() {
           .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.description}`)
           .addTo(map);
       });
+
+      // Handle right-click to create attack report
+      document.getElementById("map").addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        const latlng = map.mouseEventToLatLng(e);
+        const lat = latlng.lat.toFixed(4);
+        const lon = latlng.lng.toFixed(4);
+        
+        L.popup()
+          .setLatLng(latlng)
+          .setContent(`
+            <button onclick="reportAttackAt(${lat}, ${lon}); window.leafletMap.closePopup();" style="padding: 8px 12px; background-color: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              Report Attack Here
+            </button>
+          `)
+          .openOn(map);
+      });
     })
     .catch(err => console.error("Error loading reports:", err));
+
 }
 
 // Render map with existing reports on page load
