@@ -32,7 +32,7 @@ A fun web application to report and visualize fake shark attack incidents on an 
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/fakesharks.git
+git clone https://github.com/barnettcp/fakesharks.git
 cd fakesharks
 ```
 
