@@ -46,35 +46,28 @@ populateDropdowns();
 
 
 /**
- * Fetches shark attack reports and renders them on a geographic map using Plotly.
- * Can be called multiple times to refresh the map with updated data.
+ * Rewritten to use Leaflet for map rendering and marker management.
+ * Fetches all reports from the API and displays them as markers on the map.
+ * Each marker shows the shark type and body part in a popup when clicked.
  */
 function refreshMap() {
   fetch("/api/reports")
     .then(res => res.json())
     .then(data => {
-      // Create a scatter plot on a geographic projection with all reports
-      Plotly.newPlot("map", [{
-        type: "scattergeo",
-        lat: data.map(d => d.lat),
-        lon: data.map(d => d.lon),
-        text: data.map(d => d.shark_type),
-        mode: "markers",
-        marker: { size: 10 }
-      }], {
-        responsive: true,
-        margin: { l: 0, r: 0, t: 0, b: 0 },
-        geo: { 
-          scope: "world",
-          projection: { type: "equirectangular" },
-          showland: true,
-          landcolor: "#2d5016",
-          showocean: true,
-          oceancolor: "#1a3a52",
-          showcountries: true,
-          countrycolor: "#1e350f",
-          countrywidth: 0.75
-         }
+      // Initialize the map (center on world view, zoom level 2)
+      const map = L.map("map").setView([20, 0], 2);
+      
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+      
+      // Add markers for each report
+      data.forEach(d => {
+        L.marker([d.lat, d.lon])
+          .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.description}`)
+          .addTo(map);
       });
     })
     .catch(err => console.error("Error loading reports:", err));
