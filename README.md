@@ -26,15 +26,25 @@ A fun web application to report and visualize fake shark attack incidents on an 
 ### Prerequisites
 
 - Python 3.x
-- Flask
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 
 ### Installation
 
 1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/fakesharks.git
+cd fakesharks
+```
 
-2. Install dependencies:
+2. Install dependencies with uv:
+```bash
+uv sync
+```
 
 3. Run the application:
+```bash
+uv run python app.py
+```
 
 4. Open your browser and navigate to:
 
