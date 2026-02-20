@@ -78,9 +78,11 @@ function refreshMap() {
       }).setView([20, 0], 2);
       window.leafletMap = map;  // Store globally so we can remove it next time
       
-      // Add OpenStreetMap tiles
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; OpenStreetMap contributors',
+      // Add CartoDB Dark Matter tiles.
+      // Purpose-built dark basemap — better contrast for colored icons than CSS-filtered OSM.
+      // Free for non-commercial use; attribution required (included below).
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
         maxZoom: 19
       }).addTo(map);
       
