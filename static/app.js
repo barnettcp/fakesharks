@@ -69,7 +69,13 @@ function refreshMap() {
       }
       
       // Initialize the map (center on world view, zoom level 2)
-      const map = L.map("map").setView([20, 0], 2);
+      // maxBounds restricts panning to a single copy of the world [-180, 180].
+      // maxBoundsViscosity: 1 makes the boundary a hard stop (0 = rubberbands freely, 1 = no give).
+      const map = L.map("map", {
+        maxBounds: [[-90, -180], [90, 180]],
+        maxBoundsViscosity: 1,
+        minZoom: 2.5  // prevents zooming out far enough to see the world repeat; increase to 3 on wide screens
+      }).setView([20, 0], 2);
       window.leafletMap = map;  // Store globally so we can remove it next time
       
       // Add OpenStreetMap tiles
@@ -78,9 +84,20 @@ function refreshMap() {
         maxZoom: 19
       }).addTo(map);
       
+      // Define the custom shark icon using the great-white SVG.
+      // L.icon() describes an image-based marker icon.
+      const sharkIcon = L.icon({
+        iconUrl:     "/static/icons/great-white.svg",
+        iconSize:    [38, 54],  // rendered pixel size; Leaflet scales the SVG to fit
+        iconAnchor:  [19, 36],  // pixel offset (from top-left) that sits ON the map coordinate
+                                //   x=19 → horizontal center of the 38px-wide image
+                                //   y=36 → base of the triangle (~67% down the 54px-tall image)
+        popupAnchor: [0, -38]   // where the popup opens, relative to iconAnchor; negative y = above
+      });
+
       // Add markers for each report
       data.forEach(d => {
-        L.marker([d.lat, d.lon])
+        L.marker([d.lat, d.lon], { icon: sharkIcon })
           .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.description}`)
           .addTo(map);
       });
