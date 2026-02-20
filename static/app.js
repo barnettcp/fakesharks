@@ -77,13 +77,45 @@ function refreshMap() {
         minZoom: 2.5  // prevents zooming out far enough to see the world repeat; increase to 3 on wide screens
       }).setView([20, 0], 2);
       window.leafletMap = map;  // Store globally so we can remove it next time
-      
+
+      // Custom zoom indicator control.
+      // L.Control is Leaflet's base class for map UI elements.
+      // onAdd() must return a DOM element — Leaflet places it in the chosen corner.
+      const ZoomIndicator = L.Control.extend({
+        options: { position: "bottomleft" },
+        onAdd(map) {
+          const container = L.DomUtil.create("div", "zoom-indicator");
+          container.innerHTML = `
+            <span class="zoom-indicator-label">Zoom</span>
+            <div class="zoom-indicator-track">
+              <div class="zoom-indicator-fill" id="zoom-fill"></div>
+            </div>
+            <span class="zoom-indicator-value" id="zoom-value"></span>
+          `;
+          return container;
+        }
+      });
+      new ZoomIndicator().addTo(map);
+
+      // Update the bar and number whenever zoom changes.
+      // minZoom and maxZoom define the full range of the bar (0% → 100%).
+      function updateZoomIndicator() {
+        const min = map.getMinZoom();   // 2.5
+        const max = map.getMaxZoom();   // 19
+        const current = map.getZoom();
+        const pct = ((current - min) / (max - min)) * 100;
+        document.getElementById("zoom-fill").style.width = pct + "%";
+        document.getElementById("zoom-value").textContent = current.toFixed(1);
+      }
+      map.on("zoomend", updateZoomIndicator);
+      updateZoomIndicator();  // set initial state
+
       // Add CartoDB Dark Matter tiles.
       // Purpose-built dark basemap — better contrast for colored icons than CSS-filtered OSM.
       // Free for non-commercial use; attribution required (included below).
       L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-        maxZoom: 19
+        maxZoom: 13
       }).addTo(map);
       
       // Define the custom shark icon using the great-white SVG.
