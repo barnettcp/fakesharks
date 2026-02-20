@@ -94,7 +94,7 @@ function refreshMap() {
         iconAnchor:  [19, 36],  // pixel offset (from top-left) that sits ON the map coordinate
                                 //   x=19 → horizontal center of the 38px-wide image
                                 //   y=36 → base of the triangle (~67% down the 54px-tall image)
-        popupAnchor: [0, -38]   // where the popup opens, relative to iconAnchor; negative y = above
+        popupAnchor: [0, -18]   // where the popup opens, relative to iconAnchor; negative y = above
       });
 
       // Add markers for each report
