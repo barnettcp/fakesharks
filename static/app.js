@@ -126,23 +126,50 @@ function refreshMap() {
         maxZoom: 13
       }).addTo(map);
       
-      // Define the custom shark icon using the great-white SVG.
-      // L.icon() describes an image-based marker icon.
-      const sharkIcon = L.icon({
-        iconUrl:     "/static/icons/great-white.svg",
-        iconSize:    [38, 54],  // rendered pixel size; Leaflet scales the SVG to fit
-        iconAnchor:  [19, 36],  // pixel offset (from top-left) that sits ON the map coordinate
-                                //   x=19 → horizontal center of the 38px-wide image
-                                //   y=36 → base of the triangle (~67% down the 54px-tall image)
-        popupAnchor: [0, -18]   // where the popup opens, relative to iconAnchor; negative y = above
-      });
+      // Icon size bounds — tune these two numbers to taste.
+      // The icon scales linearly between ICON_MIN_W (at minZoom) and ICON_MAX_W (at maxZoom).
+      const ICON_MIN_W = 20;  // pixels wide at most-zoomed-out view
+      const ICON_MAX_W = 52;  // pixels wide at most-zoomed-in view
 
-      // Add markers for each report
+      // Builds an L.icon() at the given pixel width, keeping the original 38×54 aspect ratio.
+      // iconAnchor and popupAnchor are also scaled proportionally so placement stays correct.
+      function makeSharkIcon(w) {
+        const h = Math.round(w * (54 / 38));          // preserve aspect ratio
+        return L.icon({
+          iconUrl:     "/static/icons/great-white.svg",
+          iconSize:    [w, h],
+          iconAnchor:  [Math.round(w / 2), Math.round(h * 2 / 3)],  // bottom-center of triangle
+          popupAnchor: [0, -Math.round(h / 3)]
+        });
+      }
+
+      // Add markers for each report, storing references so we can resize them later
+      const markers = [];
       data.forEach(d => {
-        L.marker([d.lat, d.lon], { icon: sharkIcon })
+        const marker = L.marker([d.lat, d.lon], { icon: makeSharkIcon(ICON_MIN_W) })
           .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.description}`)
           .addTo(map);
+        markers.push(marker);
       });
+
+      // Recalculates icon size for all markers based on the current zoom level.
+      // t is a 0→1 value representing position in the zoom range; size is interpolated from that.
+      // lastIconWidth is a dirty check: because w is an integer, it only changes at discrete zoom
+      // steps. Skipping the setIcon loop when w hasn't changed keeps "zoom" (continuous) event
+      // handling cheap even with many markers.
+      let lastIconWidth = null;
+      function rescaleMarkers() {
+        const min = map.getMinZoom();
+        const max = map.getMaxZoom();
+        const t = (map.getZoom() - min) / (max - min);
+        const w = Math.round(ICON_MIN_W + t * (ICON_MAX_W - ICON_MIN_W));
+        if (w === lastIconWidth) return;  // nothing changed, skip the DOM work
+        lastIconWidth = w;
+        const icon = makeSharkIcon(w);
+        markers.forEach(m => m.setIcon(icon));
+      }
+      map.on("zoom", rescaleMarkers);  // "zoom" fires continuously; dirty check above keeps it cheap
+      rescaleMarkers();  // set correct size on initial load
 
       // Handle right-click to create attack report
       document.getElementById("map").addEventListener('contextmenu', (e) => {
