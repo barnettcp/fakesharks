@@ -74,41 +74,49 @@ function refreshMap() {
       const map = L.map("map", {
         maxBounds: [[-90, -180], [90, 180]],
         maxBoundsViscosity: 1,
-        minZoom: 2.5  // prevents zooming out far enough to see the world repeat; increase to 3 on wide screens
+        minZoom: 2.5,  // prevents zooming out far enough to see the world repeat; increase to 3 on wide screens
+        zoomControl: false  // disable default +/- buttons; replaced by our custom ZoomControl below
       }).setView([20, 0], 2);
       window.leafletMap = map;  // Store globally so we can remove it next time
 
-      // Custom zoom indicator control.
-      // L.Control is Leaflet's base class for map UI elements.
-      // onAdd() must return a DOM element — Leaflet places it in the chosen corner.
-      const ZoomIndicator = L.Control.extend({
-        options: { position: "bottomleft" },
+      // Custom vertical zoom control — replaces Leaflet's default +/- buttons.
+      // Structure: [+] button, vertical track with fill bar, [−] button.
+      // L.DomEvent.disableClickPropagation() is required so button clicks don't
+      // also fire a map click event underneath the control.
+      const ZoomControl = L.Control.extend({
+        options: { position: "topleft" },
         onAdd(map) {
-          const container = L.DomUtil.create("div", "zoom-indicator");
+          const container = L.DomUtil.create("div", "zoom-control");
           container.innerHTML = `
-            <span class="zoom-indicator-label">Zoom</span>
-            <div class="zoom-indicator-track">
-              <div class="zoom-indicator-fill" id="zoom-fill"></div>
+            <button class="zoom-btn" id="zoom-in">+</button>
+            <div class="zoom-track">
+              <div class="zoom-track-fill" id="zoom-fill"></div>
             </div>
-            <span class="zoom-indicator-value" id="zoom-value"></span>
+            <button class="zoom-btn" id="zoom-out">−</button>
           `;
+
+          // Prevent clicks on the control from propagating to the map
+          L.DomEvent.disableClickPropagation(container);
+
+          // Wire buttons to Leaflet's built-in zoom methods
+          container.querySelector("#zoom-in").addEventListener("click", () => map.zoomIn());
+          container.querySelector("#zoom-out").addEventListener("click", () => map.zoomOut());
+
           return container;
         }
       });
-      new ZoomIndicator().addTo(map);
+      new ZoomControl().addTo(map);
 
-      // Update the bar and number whenever zoom changes.
-      // minZoom and maxZoom define the full range of the bar (0% → 100%).
-      function updateZoomIndicator() {
-        const min = map.getMinZoom();   // 2.5
-        const max = map.getMaxZoom();   // 19
-        const current = map.getZoom();
-        const pct = ((current - min) / (max - min)) * 100;
-        document.getElementById("zoom-fill").style.width = pct + "%";
-        document.getElementById("zoom-value").textContent = current.toFixed(1);
+      // Update the fill bar height whenever zoom changes.
+      // Fill grows from the bottom: low zoom = short bar, high zoom = tall bar.
+      function updateZoomBar() {
+        const min = map.getMinZoom();  // 2.5
+        const max = map.getMaxZoom();  // 19
+        const pct = ((map.getZoom() - min) / (max - min)) * 100;
+        document.getElementById("zoom-fill").style.height = pct + "%";
       }
-      map.on("zoomend", updateZoomIndicator);
-      updateZoomIndicator();  // set initial state
+      map.on("zoomend", updateZoomBar);
+      updateZoomBar();  // set initial state
 
       // Add CartoDB Dark Matter tiles.
       // Purpose-built dark basemap — better contrast for colored icons than CSS-filtered OSM.

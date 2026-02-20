@@ -35,46 +35,59 @@ body {
 }
 
 
-/* ─── Zoom indicator control ─────────────────────────────────────── */
+/* ─── Vertical zoom control ─────────────────────────────────────── */
 
-.zoom-indicator {
+/* Outer container — column flex so + sits above track above − */
+.zoom-control {
     background-color: rgba(26, 31, 46, 0.85);
     border: 1px solid #444;
     border-radius: 6px;
-    padding: 6px 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+/* + and − buttons */
+.zoom-btn {
+    width: 28px;
+    height: 28px;
+    background-color: #1a1f2e;
+    color: #ffffff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-family: Arial, sans-serif;
-    font-size: 12px;
-    color: #aaaaaa;
-    pointer-events: none;   /* don't capture clicks intended for the map */
+    justify-content: center;
 }
 
-.zoom-indicator-label {
-    white-space: nowrap;
+.zoom-btn:hover {
+    background-color: #cc0000;
+    border-color: #cc0000;
 }
 
-/* The grey track that the fill bar sits inside */
-.zoom-indicator-track {
-    width: 80px;
-    height: 6px;
+/* Narrow vertical track between the buttons */
+.zoom-track {
+    width: 6px;
+    height: 100px;       /* adjust to taste */
     background-color: #333a55;
     border-radius: 3px;
+    position: relative;  /* needed so the fill can be positioned inside it */
     overflow: hidden;
 }
 
-/* The filled portion — width is set dynamically by updateZoomIndicator() */
-.zoom-indicator-fill {
-    height: 100%;
-    width: 0%;
+/* Fill bar — anchored to the bottom, height set dynamically by updateZoomBar() */
+.zoom-track-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
     background-color: #cc0000;
     border-radius: 3px;
-    transition: width 0.15s ease;   /* smooth animation as the bar moves */
-}
-
-.zoom-indicator-value {
-    min-width: 24px;    /* fixed width prevents the container from resizing as digits change */
-    text-align: right;
-    color: #ffffff;
+    transition: height 0.15s ease;
 }
