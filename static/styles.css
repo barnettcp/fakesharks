@@ -73,7 +73,7 @@ body {
 /* Narrow vertical track between the buttons */
 .zoom-track {
     width: 6px;
-    height: 100px;       /* adjust to taste */
+    height: 150px;       /* adjust to taste */
     background-color: #333a55;
     border-radius: 3px;
     position: relative;  /* needed so the fill can be positioned inside it */
@@ -90,4 +90,23 @@ body {
     background-color: #cc0000;
     border-radius: 3px;
     transition: height 0.15s ease;
+}
+
+
+/* ─── Attribution control ────────────────────────────────────────── */
+
+/* Override Leaflet's default light box */
+.leaflet-control-attribution {
+    background-color: rgba(26, 31, 46, 0.85) !important; /* requires !important to override Leaflet's default */
+    color: #888888 !important;  /* plain text nodes (© and "contributors") inherit this; !important beats Leaflet's color: #333 */
+    font-size: 11px;
+}
+
+/* Links inside the attribution (OSM, CARTO) */
+.leaflet-control-attribution a {
+    color: #aaaaaa;
+}
+
+.leaflet-control-attribution a:hover {
+    color: #ffffff;
 }
