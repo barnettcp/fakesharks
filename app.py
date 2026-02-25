@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 import sqlite3
+import random
 from datetime import datetime
 from init_db import init_db
 
@@ -49,13 +50,40 @@ def get_reports():
 
     return jsonify(reports)
 
+def calculate_survival(data: dict) -> bool:
+    """
+    Determine whether the victim survived the shark attack.
+
+    Currently uses a simple random threshold: a random float in [0, 1) is
+    generated and compared against SURVIVAL_RATE.  If the value falls below
+    the threshold the victim survives.
+
+    This function is intentionally isolated so that more sophisticated logic
+    (e.g. weighting by severity or shark type) can be introduced here later
+    without touching the rest of the request handler.
+
+    Args:
+        data: The raw POST payload for a new report.  Included now so the
+              signature is already correct when input-based logic is added.
+
+    Returns:
+        True if the victim survived, False otherwise.
+    """
+    # Threshold for survival: values below this produce a True (survived) result.
+    # Raise or lower this constant to tune the overall survival rate.
+    SURVIVAL_RATE = 0.6
+
+    return random.random() < SURVIVAL_RATE
+
+
 @app.route("/api/reports", methods=["POST"])
 def add_report():
     data = request.json
     conn = get_db()
 
-    # TODO: Implement logic to calculate survived based on severity and description
-    survived = True  # Placeholder
+    # Determine survival outcome via dedicated function so the logic can be
+    # expanded independently of this request handler.
+    survived = calculate_survival(data)
 
     # Add the new report to the database
     conn.execute(
