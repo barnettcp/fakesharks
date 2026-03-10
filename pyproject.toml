@@ -6,6 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "flask>=3.1.2",
+    "huggingface-hub>=1.6.0",
+    "langchain>=1.2.10",
+    "langchain-community>=0.4.1",
+    "langchain-core>=1.2.18",
+    "langchain-huggingface>=1.2.1",
     "python-dotenv>=1.2.2",
     "requests>=2.32.5",
 ]
