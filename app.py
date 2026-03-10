@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import sqlite3
 import random
-from datetime import datetime
+import time
 from init_db import init_db
 
 app = Flask(__name__)
@@ -93,7 +93,7 @@ def add_report():
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
-            datetime.utcnow(),
+            int(time.time()),  # current timestamp
             data["lat"],
             data["lon"],
             data["shark_type"],
