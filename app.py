@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify, render_template
 import sqlite3
 import random
 import time
-import requests
 from init_db import init_db
 from dotenv import load_dotenv
 import os
+from llm import generate_article
 
 app = Flask(__name__)
 
@@ -105,7 +105,13 @@ def add_report():
             data["body_part"],
             data["severity"],
             data["description"],
-            None,  # long_description will be populated later
+            generate_article(
+                description=data["description"],
+                shark_type=data["shark_type"],
+                body_part=data["body_part"],
+                severity=data["severity"],
+                survived=survived,
+            ),
             survived,
         )
     )
@@ -132,71 +138,4 @@ def get_body_parts():
     conn.close()
     return jsonify([p[0] for p in parts])
 
-# Generate a news article about a shark attack
-@app.route("/api/reports/<int:report_id>/news", methods=["GET"])
-def generate_news_article(report_id):
-    conn = get_db()
-    report = conn.execute("SELECT * FROM reports WHERE id = ?", (report_id,)).fetchone()
-    conn.close()
 
-    if not report:
-        return jsonify({"error": "Report not found"})
-
-    data = {
-        "lat": report[2],
-        "lon": report[3],
-        "shark_type": report[4],
-        "body_part": report[5],
-        "severity": report[6],
-        "description": report[7],
-        "survived": report[9]
-    }
-
-    return generate_news_article_from_data(data)
-
-def generate_news_article_from_data(data: dict):
-    """
-    Calls Hugging Face API to generate a news article about a shark attack.
-    Args:
-        data: dict containing shark attack info (lat, lon, shark_type, body_part, severity, description, survived, etc.)
-    Returns:
-        Generated article text (str) or error message.
-    """
-    # Load Hugging Face API key from environment
-    hf_api_key = os.getenv("HUGGINGFACEHUB_API_TOKEN")
-    if not hf_api_key:
-        return "Hugging Face API key not found."
-
-    # Default prompt template
-    prompt_template = (
-        "Write a short news article about a shark attack.\n"
-        "Location: {lat}, {lon}\n"
-        "Shark type: {shark_type}\n"
-        "Body part injured: {body_part}\n"
-        "Severity: {severity}\n"
-        "Description: {description}\n"
-        "Survived: {survived}\n"
-    )
-
-    # Build prompt
-    prompt = prompt_template.format(**data)
-
-    # Example: Use Hugging Face text generation endpoint (replace with your model)
-    model_id = "gpt2"  # Replace with desired model
-    url = f"https://api-inference.huggingface.co/models/{model_id}"
-    headers = {"Authorization": f"Bearer {hf_api_key}"}
-    payload = {"inputs": prompt}
-
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        # Extract generated text (depends on model output format)
-        if isinstance(result, list) and "generated_text" in result[0]:
-            return result[0]["generated_text"]
-        elif isinstance(result, dict) and "error" in result:
-            return f"API error: {result['error']}"
-        else:
-            return str(result)
-    except Exception as e:
-        return f"Request failed: {e}"
