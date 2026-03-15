@@ -147,7 +147,7 @@ function refreshMap() {
       const markers = [];
       data.forEach(d => {
         const marker = L.marker([d.lat, d.lon], { icon: makeSharkIcon(ICON_MIN_W) })
-          .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.description}`)
+          .bindPopup(`Shark Type: <b>${d.shark_type}</b><br>Body Part: <b>${d.body_part}</b><br>Severity: ${d.severity}<br><br>Description: ${d.long_description}`)
           .addTo(map);
         markers.push(marker);
       });
